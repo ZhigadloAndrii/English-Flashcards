@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import messagebox
 from flashcards import Flashcards
 from pathlib import Path
 
@@ -10,10 +9,15 @@ class FlashcardApp:
     def __init__(self, root, flashcards):
         self.root = root
         self.flashcards = flashcards
+        self.current_card = None
         self.show_translation = False
 
         root.title("English Flashcards")
         root.geometry("400x300")
+
+        # Уровень слова
+        self.level_label = tk.Label(root, text="", font=("Arial", 14), fg="blue")
+        self.level_label.pack()
 
         # Слово
         self.word_label = tk.Label(root, text="", font=("Arial", 24))
@@ -36,34 +40,31 @@ class FlashcardApp:
         self.btn_unknown = tk.Button(self.btn_frame, text="Не знаю", command=self.next_card)
         self.btn_unknown.grid(row=0, column=2, padx=5)
 
-        self.update_card()
+        self.next_card()
 
-    def update_card(self):
-        card = self.flashcards.get_current()
-        if card is None:
-            messagebox.showinfo("Готово!", "Вы прошли все карточки.")
-            self.root.quit()
-            return
+    def next_card(self):
         self.show_translation = False
-        self.word_label.config(text=card["word"])
+        self.current_card = self.flashcards.choose_next()
+        self.word_label.config(text=self.current_card["word"])
         self.translation_label.config(text="")
+        self.level_label.config(text=f"Level: {self.current_card.get('level', '')}")
 
     def toggle_translation(self):
-        card = self.flashcards.get_current()
-        if card:
+        if self.current_card:
             if self.show_translation:
                 self.translation_label.config(text="")
                 self.show_translation = False
             else:
-                self.translation_label.config(text=card["translation"])
+                self.translation_label.config(text=self.current_card["translation"])
                 self.show_translation = True
 
     def know_word(self):
+        self.flashcards.mark_known(self.current_card)
         self.next_card()
 
-    def next_card(self):
-        self.flashcards.next_card()
-        self.update_card()
+    def unknown_word(self):
+        self.flashcards.mark_unknown(self.current_card)
+        self.next_card()
 
 
 if __name__ == "__main__":
