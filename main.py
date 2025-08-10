@@ -11,6 +11,7 @@ class FlashcardApp:
         self.flashcards = flashcards
         self.current_card = None
         self.show_translation = False
+        self.mode = "en_to_ru"
 
         root.title("English Flashcards")
         root.geometry("400x300")
@@ -40,12 +41,34 @@ class FlashcardApp:
         self.btn_unknown = tk.Button(self.btn_frame, text="Не знаю", command=self.next_card)
         self.btn_unknown.grid(row=0, column=2, padx=5)
 
+        # Кнопка смены режима
+        self.btn_switch = tk.Button(root, text="Сменить режим", command=self.switch_mode)
+        self.btn_switch.pack(pady=10)
+
+        self.next_card()
+
+    def switch_mode(self):
+        if self.mode == "en_to_ru":
+            self.mode = "ru_to_en"
+        else:
+            self.mode = "en_to_ru"
         self.next_card()
 
     def next_card(self):
         self.show_translation = False
         self.current_card = self.flashcards.choose_next()
-        self.word_label.config(text=self.current_card["word"])
+
+        if self.mode == "en_to_ru":
+            word = self.current_card["word"]
+            translation = self.current_card["translation"]
+        else:  # ru_to_en
+            word = self.current_card["translation"]
+            translation = self.current_card["word"]
+
+        self.display_word = word
+        self.display_translation = translation
+
+        self.word_label.config(text=self.display_word)
         self.translation_label.config(text="")
         self.level_label.config(text=f"Level: {self.current_card.get('level', '')}")
 
@@ -55,7 +78,7 @@ class FlashcardApp:
                 self.translation_label.config(text="")
                 self.show_translation = False
             else:
-                self.translation_label.config(text=self.current_card["translation"])
+                self.translation_label.config(text=self.display_translation)
                 self.show_translation = True
 
     def know_word(self):
