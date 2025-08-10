@@ -1,8 +1,10 @@
 import tkinter as tk
 from flashcards import Flashcards
 from pathlib import Path
+from database import init_db
 
 DATA_FILE = Path("data/words_unique.csv")
+DB_FILE = Path("data/flashcards.db")
 
 
 class FlashcardApp:
@@ -91,10 +93,10 @@ class FlashcardApp:
 
 
 if __name__ == "__main__":
-    if not DATA_FILE.exists():
-        print(f"Файл {DATA_FILE} не найден.")
-    else:
-        flashcards = Flashcards(DATA_FILE)
-        root = tk.Tk()
-        app = FlashcardApp(root, flashcards)
-        root.mainloop()
+    init_db(DATA_FILE)
+
+    # Запуск приложения
+    root = tk.Tk()
+    flashcards = Flashcards()
+    app = FlashcardApp(root, flashcards)
+    root.mainloop()

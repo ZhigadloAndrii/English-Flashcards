@@ -1,27 +1,20 @@
-import csv
 import random
+from database import get_all_words, update_weight
 
 
 class Flashcards:
-    def __init__(self, csv_file):
-        self.words = self.load_words(csv_file)
-        for w in self.words:
-            w["weight"] = 1.0
+    def __init__(self):
+        self.words = get_all_words()
 
-    def load_words(self, csv_file):
-        words = []
-        with open(csv_file, newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                words.append({
-                    "word": row["word"].strip(),
-                    "translation": row["translation"].strip(),
-                    "level": row["level"].strip()
-                })
-        return words
+    def reload_words(self):
+        """Перезагружает список слов из БД."""
+        self.words = get_all_words()
 
     def choose_next(self):
         """Выбирает слово с учетом веса"""
+        if not self.words:
+            return None
+
         total_weight = sum(w["weight"] for w in self.words)
         r = random.uniform(0, total_weight)
         cumulative = 0
@@ -32,7 +25,11 @@ class Flashcards:
         return self.words[-1]
 
     def mark_known(self, word):
-        word["weight"] = max(0.1, word["weight"] * 0.5)
+        new_weight = max(0.1, word["weight"] * 0.5)
+        update_weight(word["id"], new_weight)
+        self.reload_words()
 
     def mark_unknown(self, word):
-        word["weight"] = min(10, word["weight"] * 1.5)
+        new_weight = min(10, word["weight"] * 1.5)
+        update_weight(word["id"], new_weight)
+        self.reload_words()
