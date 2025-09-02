@@ -1,14 +1,21 @@
 import random
-from database import get_all_words, update_weight
+from database import get_all_words, update_weight, get_words_by_levels
 
 
 class Flashcards:
-    def __init__(self):
-        self.words = get_all_words()
+    def __init__(self, levels=None):
+        self.levels = levels
+        if levels:
+            self.words = get_words_by_levels(levels)
+        else:
+            self.words = get_all_words()
 
     def reload_words(self):
         """Перезагружает список слов из БД."""
-        self.words = get_all_words()
+        if hasattr(self, "levels") and self.levels:
+            self.words = get_words_by_levels(self.levels)
+        else:
+            self.words = get_all_words()
 
     def choose_next(self):
         """Выбирает слово с учетом веса"""

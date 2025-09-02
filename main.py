@@ -95,8 +95,9 @@ class FlashcardApp:
 if __name__ == "__main__":
     init_db(DATA_FILE)
 
-    # Запуск приложения
+    levels = ["a1", "a2"]
+    flashcards = Flashcards(levels)
+
     root = tk.Tk()
-    flashcards = Flashcards()
     app = FlashcardApp(root, flashcards)
     root.mainloop()

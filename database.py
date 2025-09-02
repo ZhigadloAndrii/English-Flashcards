@@ -53,3 +53,15 @@ def update_weight(word_id, new_weight):
     cur.execute("UPDATE words SET weight = ? WHERE id = ?", (new_weight, word_id))
     conn.commit()
     conn.close()
+
+
+def get_words_by_levels(levels):
+    """Получить слова по списку уровней"""
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    query = "SELECT * FROM words WHERE level IN ({})".format(",".join("?" for _ in levels))
+    cur.execute(query, levels)
+    rows = cur.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
